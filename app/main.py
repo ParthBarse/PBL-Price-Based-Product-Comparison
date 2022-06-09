@@ -22,7 +22,8 @@ app = Flask(__name__)
 @app.route("/", methods=["GET", "POST"])
 def index():
     s = HTMLSession()
-    
+
+
     def get_lnks_amz(soup):
         for dt1 in soup.find_all('a', {'class': 'a-link-normal s-underline-text s-underline-link-text s-link-style a-text-normal'}):
             prodLnk = dt1['href']
@@ -54,13 +55,8 @@ def index():
                         "134.213.29.202:4444"]
         proxies = {'https': random.choice(proxies_list)}
 
-        #opening up connection, grabing the page
-        uClient = uReq(url)
-        page_html = uClient.read()
-
-        #html parsing
-        soup = bs(page_html, "html.parser") 
-        uClient.close()
+        r = requests.get(url, headers=headers).text
+        soup = bs(r, "html.parser")
 
         try:
             productName2 = soup.find('span', {'id': 'productTitle'}).text.strip()
@@ -69,7 +65,7 @@ def index():
             print("Product Name not found !")
 
         try:
-            price = soup.find('span', {'class': 'a-price-whole'}).text.strip()
+            price = soup.find('span', {'class': 'a-price-whole'}).text.strip().replace("₹", "₹")
             price = "₹" + price
         except Exception as e:
             print(e)
@@ -92,6 +88,7 @@ def index():
             "Product Link": url}
 
         finalData_amz.append(tempV)
+        print(finalData_amz[-1])
 
 
     def get_lnks_flp(soup):
@@ -139,6 +136,7 @@ def index():
             "Product Link": url}
 
         finalData_flp.append(tempV)
+        print(finalData_flp[-1])
 
 
     # #Driver Code Amazon -
@@ -164,14 +162,10 @@ def index():
                         "134.213.29.202:4444"]
         proxies = {'https': random.choice(proxies_list)}
 
-        #opening up connection, grabing the page
-        uClient = uReq(surl)
-        page_html = uClient.read()
+        r = requests.get(surl, headers=headers).text
 
-        #html parsing
-        soup1 = bs(page_html, "html.parser") 
-        uClient.close()
-        # print(soup1)
+        soup1 = bs(r, "html.parser")
+        print(soup1)
 
         try:
             get_lnks_amz(soup1)
@@ -225,23 +219,29 @@ def index():
     productName1 = request.form.get("productName_inp", "")
     productName = productName1.replace(" ", "+")
 
-    if productName == "":
-        productName = "Iphone"
+    if productName:
 
-    driverAmz(productName)
-    driverFlp(productName)
+        try:
+            driverAmz(productName)
+        except:
+            print("Error in Amazon")
+        try:
+            driverFlp(productName)
+        except:
+            print("Error in Flipkart")
 
     finalData = finalData_amz + finalData_flp
 
-    d1 = ""
-    d2 = ""
-    d3 = ""
-    d4 = ""
-    d5 = ""
-    d6 = ""
-    d7 = ""
-    d8 = ""
-    d9 = ""
+    d1 = ["Amazon", "Apple iPhone 11 (64GB) - Black", "1", "₹46,999", "https://m.media-amazon.com/images/I/71i2XhHU3pL._SX679_.jpg", "4", "https://www.amazon.in/New-Apple-iPhone-11-64GB/dp/B08L8DV7BX"]
+    d2 = ["Amazon", "Apple iPhone 11 (64GB) - White", "1", "₹46,999", "https://m.media-amazon.com/images/I/71QE00iB9IL._SX679_.jpg", "4", "https://www.amazon.in/New-Apple-iPhone-11-64GB/dp/B08L8C1NJ3"]
+    d3 = ["Amazon", "Apple iPhone 11 (128GB) - White", "1", "₹49,900", "https://images-eu.ssl-images-amazon.com/images/I/414Z3g1cIbL._SY445_SX342_QL70_FMwebp_.jpg", "4", "https://www.amazon.in/New-Apple-iPhone-11-128GB/dp/B08L89VM35"]
+    d4 = ["Amazon", "Apple iPhone 11 (128GB) - Purple", "1", "₹49,900", "https://m.media-amazon.com/images/I/71tpxtLD0aL._SX679_.jpg", "4", "https://www.amazon.in/New-Apple-iPhone-11-128GB/dp/B08L8CXFZ1"]
+    
+    d5 = ["Flipkart", "APPLE iPhone 13 (Pink, 128 GB)", "1", "₹73,999", "https://rukminim2.flixcart.com/image/416/416/ktketu80/mobile/z/r/x/iphone-13-mlph3hn-a-apple-original-imag6vzz4rt8t7gk.jpeg?q=70", "4", "https://www.flipkart.com/apple-iphone-13-pink-128-gb/p/itm6e30c6ee045d2?pid=MOBG6VF5GXVFTQ5Y&lid=LSTMOBG6VF5GXVFTQ5YWKHB1V&marketplace=FLIPKART&q=Iphone&store=tyy%2F4io&srno=s_1_1&otracker=search&fm=organic&iid=e854dda9-882c-47a0-a676-0f56a8be3965.MOBG6VF5GXVFTQ5Y.SEARCH&ppt=None&ppn=None&ssid=goytjet6ds0000001654527193013&qH=29e0a89b3149a9af"]
+    d6 = ["Flipkart", "APPLE iPhone 13 (Blue, 128 GB)", "1", "₹73,999", "https://rukminim2.flixcart.com/image/416/416/ktketu80/mobile/2/y/o/iphone-13-mlpk3hn-a-apple-original-imag6vpyur6hjngg.jpeg?q=70", "4", "https://www.flipkart.com/apple-iphone-13-blue-128-gb/p/itm6c601e0a58b3c?pid=MOBG6VF5SMXPNQHG&lid=LSTMOBG6VF5SMXPNQHGL5FN51&marketplace=FLIPKART&q=Iphone&store=tyy%2F4io&srno=s_1_2&otracker=search&fm=organic&iid=e854dda9-882c-47a0-a676-0f56a8be3965.MOBG6VF5SMXPNQHG.SEARCH&ppt=None&ppn=None&ssid=goytjet6ds0000001654527193013&qH=29e0a89b3149a9af"]
+    d7 = ["Flipkart", "APPLE iPhone 11 (White, 64 GB)", "1", "₹46,999", "https://rukminim2.flixcart.com/image/416/416/kgiaykw0/mobile/3/x/e/apple-iphone-11-mhdc3hn-a-original-imafwqepx5yxwctc.jpeg?q=70", "4", "https://www.flipkart.com/apple-iphone-11-white-64-gb/p/itmfc6a7091eb20b?pid=MOBFWQ6BVWVEH3XE&lid=LSTMOBFWQ6BVWVEH3XEB1SFMZ&marketplace=FLIPKART&q=Iphone&store=tyy%2F4io&srno=s_1_3&otracker=search&fm=organic&iid=e854dda9-882c-47a0-a676-0f56a8be3965.MOBFWQ6BVWVEH3XE.SEARCH&ppt=None&ppn=None&ssid=goytjet6ds0000001654527193013&qH=29e0a89b3149a9af"]
+    d8 = ["Flipkart", "APPLE iPhone SE (Red, 128 GB)", "1", "₹35,499", "https://rukminim2.flixcart.com/image/416/416/k9loccw0/mobile/6/8/g/apple-iphone-se-mxvv2hn-a-original-imafrcqmfxhcrpsb.jpeg?q=70", "4", "https://www.flipkart.com/apple-iphone-se-red-128-gb/p/itma4202509da171?pid=MOBFWQ6BJTVFKPEJ&lid=LSTMOBFWQ6BJTVFKPEJI0X38M&marketplace=FLIPKART&q=Iphone&store=tyy%2F4io&srno=s_1_4&otracker=search&fm=organic&iid=e854dda9-882c-47a0-a676-0f56a8be3965.MOBFWQ6BJTVFKPEJ.SEARCH&ppt=None&ppn=None&ssid=goytjet6ds0000001654527193013&qH=29e0a89b3149a9af"]
+    d9 = ["Flipkart", "APPLE iPhone SE (Red, 128 GB)", "1", "₹35,499", "https://rukminim2.flixcart.com/image/416/416/k9loccw0/mobile/6/8/g/apple-iphone-se-mxvv2hn-a-original-imafrcqmfxhcrpsb.jpeg?q=70", "4", "https://www.flipkart.com/apple-iphone-se-red-128-gb/p/itma4202509da171?pid=MOBFWQ6BJTVFKPEJ&lid=LSTMOBFWQ6BJTVFKPEJI0X38M&marketplace=FLIPKART&q=Iphone&store=tyy%2F4io&srno=s_1_4&otracker=search&fm=organic&iid=e854dda9-882c-47a0-a676-0f56a8be3965.MOBFWQ6BJTVFKPEJ.SEARCH&ppt=None&ppn=None&ssid=goytjet6ds0000001654527193013&qH=29e0a89b3149a9af"]
 
     try:
         d_1 = finalData[0]
@@ -308,7 +308,7 @@ def index():
         print("Data not found !")
 
     try:
-        d_9 = finalData[7]
+        d_9 = finalData[8]
         keys9, values9 = zip(*d_9.items())
         d9 = values9
     except Exception as e:
